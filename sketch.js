@@ -8,6 +8,7 @@ var ground, invisibleGround, groundImage;
 
 var cloudsGroup, cloudImage;
 var obstaclesGroup, obstacle1, obstacle2, obstacle3, obstacle4;
+var nuclearGroup
 var backgroundImg
 var score = 0;
 var jumpSound, collidedSound;
@@ -58,7 +59,7 @@ function setup() {
   sun = createSprite(trex.x + 100, 100, 10, 10);
   sun.addAnimation("sun", sunAnimation);
   sun.scale = 0.1
-  invisibleGround = createSprite(trex.x, height - 10, width, 125);
+  invisibleGround = createSprite(trex.x, height - 10, 10000000000, 125);
   invisibleGround.shapeColor = "#f4cbaa";
 
   ground = createSprite(width / 4, height, width, 2);
@@ -82,6 +83,7 @@ function setup() {
 
   cloudsGroup = new Group();
   obstaclesGroup = new Group();
+  nuclearGroup = new Group();
 
   score = 0;
 }
@@ -126,6 +128,7 @@ function draw() {
     trex.collide(invisibleGround);
     spawnClouds();
     spawnObstacles();
+    spawnNuclearBombs();
 
     if (obstaclesGroup.isTouching(trex)) {
       if(trex.velocityX >= 16){
@@ -136,6 +139,11 @@ function draw() {
         collidedSound.play()
         gameState = END;}
     }
+    if (nuclearGroup.isTouching(trex)) {
+        collidedSound.play()
+        gameState = END;
+      }
+
     if(keyDown(LEFT_ARROW)){
       if(ground.x >= 0){  
       ground.velocityX = +10
@@ -154,12 +162,12 @@ function draw() {
     }
       if(keyDown(SHIFT)){
         if(keyDown(RIGHT_ARROW)){
-          trex.velocityX = 60
-          ground.velocityX = -100
+          trex.velocityX = 20
+          ground.velocityX = -50
         }
         if(keyDown(LEFT_ARROW)){
-          trex.velocityX = -60
-          ground.velocityX = 100
+          trex.velocityX = -20
+          ground.velocityX = 50
         }
       }    
 
@@ -205,6 +213,7 @@ function draw() {
     //set lifetime of the game objects so that they are never destroyed
     obstaclesGroup.setLifetimeEach(-1);
     cloudsGroup.setLifetimeEach(-1);
+    nuclearGroup.setLifetimeEach(-1)
 
     if (touches.length > 0 || keyDown("SPACE") || mousePressedOver(restart)) {
       reset();
@@ -279,6 +288,40 @@ function spawnObstacles() {
   }
 }
 
+function spawnNuclearBombs() {
+  if (frameCount % 20 === 0) {
+    var nuclearBomb = createSprite(trex.x + (Math.round(random(-300, 1200))), 0, 60, 90);
+    nuclearBomb.setCollider('circle', 0, 0, 45)
+    nuclearBomb.velocityY = (Math.round(random(0, 35)))
+    nuclearGroup.collide(invisibleGround)
+    
+
+
+    /* obstacle.debug = true
+    if(keyDown(LEFT_ARROW)){
+      obstacle.velocityX = 3
+    }
+    else if(keyDown(RIGHT_ARROW)){
+      obstacle.velocityX = -3
+    }*/
+    //generate random obstacles
+    /*var rand = Math.round(random(1, 2));
+    switch (rand) {
+      case 1: obstacle.addImage(obstacle1);
+        break;
+      case 2: obstacle.addImage(obstacle2);
+        break;
+      default: break;
+    }*/
+
+    //assign scale and lifetime to the obstacle           
+    nuclearBomb.scale = 0.7;
+    nuclearBomb.lifetime = 2500;
+    //add each obstacle to the group
+    nuclearGroup.add(nuclearBomb);
+  }
+}
+
 function reset() {
   gameState = PLAY;
   gameOver.visible = false;
@@ -286,6 +329,7 @@ function reset() {
 
   obstaclesGroup.destroyEach();
   cloudsGroup.destroyEach();
+  nuclearGroup.destroyEach();
 
   trex.changeAnimation("running", trex_running);
   trex.x = width/2
