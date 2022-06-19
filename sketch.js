@@ -8,7 +8,7 @@ var ground, invisibleGround, groundImage;
 
 var cloudsGroup, cloudImage;
 var obstaclesGroup, obstacle1, obstacle2, obstacle3, obstacle4;
-var nuclearGroup
+var nuclearGroup, nuke
 var backgroundImg
 var score = 0;
 var jumpSound, collidedSound;
@@ -41,6 +41,8 @@ function preload() {
   obstacle2 = loadImage("obstacle2.png");
   obstacle3 = loadImage("obstacle3.png");
   obstacle4 = loadImage("obstacle4.png");
+
+  nuke = loadImage("pixil-frame-0 (22).png")
 
   gameOverImg = loadImage("gameOver.png");
   restartImg = loadImage("restart.png");
@@ -102,7 +104,9 @@ function draw() {
   invisibleGround.x = trex.x
   gameOver.x = trex.x
   restart.x = trex.x
-
+  invisibleGround.debug = true
+  ground.visible = false
+  
   if (gameState === PLAY) {
     if (trex.velocityX !== 0){
     score = Math.round((trex.x * 3 / getFrameRate())/2);
@@ -139,7 +143,7 @@ function draw() {
         collidedSound.play()
         gameState = END;}
     }
-    if (nuclearGroup.isTouching(trex)) {
+      if (nuclearGroup.isTouching(trex)) {
         collidedSound.play()
         gameState = END;
       }
@@ -168,6 +172,11 @@ function draw() {
         if(keyDown(LEFT_ARROW)){
           trex.velocityX = -20
           ground.velocityX = 50
+        }
+        if ((touches.length > 0 || keyDown("SPACE")) && trex.y >= height - 120) {
+          jumpSound.play()
+          trex.velocityY = -20;
+          touches = [];
         }
       }    
 
@@ -289,12 +298,20 @@ function spawnObstacles() {
 }
 
 function spawnNuclearBombs() {
-  if (frameCount % 20 === 0) {
-    var nuclearBomb = createSprite(trex.x + (Math.round(random(-300, 1200))), 0, 60, 90);
-    nuclearBomb.setCollider('circle', 0, 0, 45)
+  if (frameCount % 30 === 0) {
+    var nuclearBomb = createSprite(trex.x + (Math.round(random(-500, 1500))), 0, 60, 90);
+    //nuclearBomb.setCollider('circle', 0, 0, 25)
+    if(nuclearBomb.y < height - 72.5){
     nuclearBomb.velocityY = (Math.round(random(0, 35)))
+    }
+    else{
+    nuclearBomb.velocityY = 0
+    } 
+
     nuclearGroup.collide(invisibleGround)
-    
+    nuclearBomb.addImage(nuke)
+    nuclearBomb.debug = true
+
 
 
     /* obstacle.debug = true
@@ -315,8 +332,8 @@ function spawnNuclearBombs() {
     }*/
 
     //assign scale and lifetime to the obstacle           
-    nuclearBomb.scale = 0.7;
-    nuclearBomb.lifetime = 2500;
+    nuclearBomb.scale = 2;
+    nuclearBomb.lifetime = 750;
     //add each obstacle to the group
     nuclearGroup.add(nuclearBomb);
   }
