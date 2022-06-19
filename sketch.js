@@ -104,8 +104,8 @@ function draw() {
   invisibleGround.x = trex.x
   gameOver.x = trex.x
   restart.x = trex.x
-  invisibleGround.debug = true
-  ground.visible = false
+  // invisibleGround.debug = true
+  // ground.visible = false
   
   if (gameState === PLAY) {
     if (trex.velocityX !== 0){
